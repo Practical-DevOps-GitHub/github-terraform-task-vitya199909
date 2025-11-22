@@ -30,3 +30,20 @@ resource "github_branch_default" "develop_branch_default" {
   repository = local.repo_name
   branch     = github_branch.develop_branch.branch
 }
+resource "github_branch_protection" "main_protect_rules" {
+  repository_id = local.repo_name
+  pattern       = "main"
+
+  required_pull_request_reviews {
+    require_code_owner_reviews  = true
+    required_approving_review_count = 0
+  }
+}
+resource "github_branch_protection" "develop_protect_rules" {
+  repository_id = local.repo_name
+  pattern       = "develop"
+
+  required_pull_request_reviews {
+    required_approving_review_count = 2
+  }
+}
