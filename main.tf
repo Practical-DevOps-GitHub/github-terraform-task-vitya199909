@@ -47,3 +47,40 @@ resource "github_branch_protection" "develop_protect_rules" {
     required_approving_review_count = 2
   }
 }
+resource "github_repository_collaborator" "a_repo_collaborator" {
+  repository = local.repo_name
+  username   = local.repo_name
+  permission = "push"
+}
+resource "github_repository_file" "codeowners" {
+  repository          = local.repo_name
+  branch              = "main"
+  file                = ".github/CODEOWNERS"
+  content             = "* @softservedata"
+  overwrite_on_create = true
+}
+resource "github_repository_file" "main_pr_template" {
+  repository          = local.repo_name
+  branch              = "main"
+  file                = ".github/pull_request_template.md"
+  content             = local.pr_tmplt_content
+  overwrite_on_create = true
+}
+resource "github_repository_file" "develop_pr_template" {
+  repository          = local.repo_name
+  branch              = "develop"
+  file                = ".github/pull_request_template.md"
+  content             = local.pr_tmplt_content
+  overwrite_on_create = true
+  depends_on          = [githu_branch.develop_branch]
+}
+resource "github_repository_webhook" "discord_webhook" {
+  repository = local.repo_name
+
+  configuration {
+    url          = "https://discord.com/api/webhooks/1441745377106595911/Ait7Ig4g6h5iOCFrjb77XBbigaBaGZ_kYFWtuJ6Kb-fuHB88QGaURQHUMOf0LmnNKi2z"
+    content_type = "application/json"
+  }
+
+  events = ["pull_request"]
+}
